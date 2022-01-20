@@ -1518,6 +1518,78 @@ router.route('/aisgeo').get( async(req, res, next) => {
 });
 
 
+router.route('/aisgeobyship').get( async(req, res, next) => {
+    try{
+        let _long = parseFloat(req.query.long);
+        let _lat = parseFloat(req.query.lat);
+        let _distance = parseInt(req.query.distance);
+        let _mmsi = parseInt(req.query.mmsi);
+        let _frdate = parseInt(req.query.from);
+        let _days = parseInt(req.query.days);
+
+        await client.connect();
+        const database = client.db(databasename);
+        const ais1aggregate = database.collection("ais110minsgeo");
+
+        let pipeline = [
+            {
+                '$geoNear': {
+                  near: { type: 'point', coordinates: [_long,_lat] },
+                  distanceField: 'dist.calculated',
+                  maxDistance: _distance,
+                  query: {
+                    '$and': [
+                      { mmsi: _mmsi },
+                      { aisgroupunix: { '$gte': _frdate } },
+                      { aisgroupunix: { '$lt': _frdate + _days*3600*24 } }
+                    ]
+                  },
+                  includeLocs: 'dist.location',
+                  spherical: false
+                }
+              },
+            { '$project': { _id: 0, ais_measures: 0,firstaistime2date:0,firstaistime2unix:0,lastaistime2date:0,lastaistime2unix:0, rowCount:0 } },
+            {'$sort': {'aisgroupunix':1}}
+          ];
+
+        console.log("pipeline:"+JSON.stringify(pipeline));
+
+
+        const cursor = await ais1aggregate.aggregate(pipeline);
+        
+        const results = await cursor.toArray();
+
+        let outcomes = '';
+        if (results.length > 0) {
+            results.forEach((result, i) => {
+                outcomes += JSON.stringify(result);
+                //console.log(result);
+            });
+        } else {
+            console.log('No Data');
+        }
+
+        //const csv = await converter.json2csvAsync(results);
+        //fs.writeFileSync('outcome.csv', csv);
+
+        //console.log("Outcomes : "+outcomes);
+        //res.status(200).send(csv);
+
+        res.status(200).json(results);
+
+    } catch(e)
+    {
+        console.log("Error");
+        console.error(e);
+        res.status(404).json({});
+
+    }
+    finally{
+        await client.close();
+    }    
+});
+
+
 // New End Point
 
 
