@@ -1519,4 +1519,282 @@ router.route('/aisgeo').get( async(req, res, next) => {
     }    
 });
 
+
+// New End Point
+
+
+
+router.route('/ais2allsample1hour').get( async(req, res, next) => {
+    try{
+        let _mmsi = parseInt(req.query.mmsi);
+        let _sample = parseInt(req.query.sample);
+
+        await client.connect();
+        const database = client.db(databasename);
+        const ais1aggregate = database.collection("ais11hourgeo");
+
+        let pipeline = [
+            { '$match': { mmsi: _mmsi } },
+            {'$project':{'_id':0,'mmsi':1,'aisgroupunix':1,'firstAISdata.coordinates':1,'firstAISdata.sog':1,'firstAISdata.cog':1,'firstAISdata.aistime2unix':1}},
+            {
+                '$bucketAuto': {
+                  groupBy: '$aisgroupunix',
+                  buckets: _sample,
+                  output: {
+                    mmsi: { '$first': '$mmsi' },
+                    aistime2unix: { '$first': '$firstAISdata.aistime2unix' },
+                    coordinates: { '$first': '$firstAISdata.coordinates' },
+                    sog: { '$first': '$firstAISdata.cog' },
+                    cog: { '$first': '$firstAISdata.cog' }
+                  }
+                }
+              },
+              { '$project': { _id: 0} },
+            {'$sort':{'aistime2unix':1}}
+          ];
+        
+        let allowdisk = { allowDiskUse: true }
+
+        console.log("pipeline:"+JSON.stringify(pipeline));
+
+        const cursor = await ais1aggregate.aggregate(pipeline,allowdisk);
+        
+        const results = await cursor.toArray();
+
+        let outcomes = '';
+        if (results.length > 0) {
+            results.forEach((result, i) => {
+                outcomes += JSON.stringify(result);
+                //console.log(result);
+            });
+        } else {
+            console.log('No Data');
+        }
+
+        //const csv = await converter.json2csvAsync(results);
+        //fs.writeFileSync('outcome.csv', csv);
+
+        //console.log("Outcomes : "+outcomes);
+        //res.status(200).send("OK");
+
+        res.status(200).json(results);
+
+    } catch(e)
+    {
+        console.log("Error");
+        console.error(e);
+        res.status(404).json({});
+
+    }
+    finally{
+        await client.close();
+    }   
+});
+
+router.route('/ais2allsample30min').get( async(req, res, next) => {
+    try{
+        let _mmsi = parseInt(req.query.mmsi);
+        let _sample = parseInt(req.query.sample);
+
+        await client.connect();
+        const database = client.db(databasename);
+        const ais1aggregate = database.collection("ais130mingeo");
+
+        let pipeline = [
+            { '$match': { mmsi: _mmsi } },
+            {'$project':{'_id':0,'mmsi':1,'aisgroupunix':1,'firstAISdata.coordinates':1,'firstAISdata.sog':1,'firstAISdata.cog':1,'firstAISdata.aistime2unix':1}},
+            {
+                '$bucketAuto': {
+                  groupBy: '$aisgroupunix',
+                  buckets: _sample,
+                  output: {
+                    mmsi: { '$first': '$mmsi' },
+                    aistime2unix: { '$first': '$firstAISdata.aistime2unix' },
+                    coordinates: { '$first': '$firstAISdata.coordinates' },
+                    sog: { '$first': '$firstAISdata.cog' },
+                    cog: { '$first': '$firstAISdata.cog' }
+                  }
+                }
+              },
+              { '$project': { _id: 0} },
+            {'$sort':{'aistime2unix':1}}
+          ];
+        
+        let allowdisk = { allowDiskUse: true }
+
+        console.log("pipeline:"+JSON.stringify(pipeline));
+
+        const cursor = await ais1aggregate.aggregate(pipeline,allowdisk);
+        
+        const results = await cursor.toArray();
+
+        let outcomes = '';
+        if (results.length > 0) {
+            results.forEach((result, i) => {
+                outcomes += JSON.stringify(results);
+                //console.log(result);
+            });
+        } else {
+            console.log('No Data');
+        }
+
+        //const csv = await converter.json2csvAsync(results);
+        //fs.writeFileSync('outcome.csv', csv);
+
+        //console.log("Outcomes : "+outcomes);
+        //res.status(200).send("OK");
+
+        res.status(200).json(results);
+
+    } catch(e)
+    {
+        console.log("Error");
+        console.error(e);
+        res.status(404).json({});
+
+    }
+    finally{
+        await client.close();
+    }   
+});
+
+
+
+router.route('/ais2allsample15min').get( async(req, res, next) => {
+    try{
+        let _mmsi = parseInt(req.query.mmsi);
+        let _sample = parseInt(req.query.sample);
+
+        await client.connect();
+        const database = client.db(databasename);
+        const ais1aggregate = database.collection("ais115mingeo");
+
+        let pipeline = [
+            { '$match': { mmsi: _mmsi } },
+            {'$project':{'_id':0,'mmsi':1,'aisgroupunix':1,'firstAISdata.coordinates':1,'firstAISdata.sog':1,'firstAISdata.cog':1,'firstAISdata.aistime2unix':1}},
+            {
+                '$bucketAuto': {
+                  groupBy: '$aisgroupunix',
+                  buckets: _sample,
+                  output: {
+                    mmsi: { '$first': '$mmsi' },
+                    aistime2unix: { '$first': '$firstAISdata.aistime2unix' },
+                    coordinates: { '$first': '$firstAISdata.coordinates' },
+                    sog: { '$first': '$firstAISdata.cog' },
+                    cog: { '$first': '$firstAISdata.cog' }
+                  }
+                }
+              },
+              { '$project': { _id: 0} },
+            {'$sort':{'aistime2unix':1}}
+          ];
+        
+        let allowdisk = { allowDiskUse: true }
+
+        console.log("pipeline:"+JSON.stringify(pipeline));
+
+        const cursor = await ais1aggregate.aggregate(pipeline,allowdisk);
+        
+        const results = await cursor.toArray();
+
+        let outcomes = '';
+        if (results.length > 0) {
+            results.forEach((result, i) => {
+                outcomes += JSON.stringify(results);
+                //console.log(result);
+            });
+        } else {
+            console.log('No Data');
+        }
+
+        //const csv = await converter.json2csvAsync(results);
+        //fs.writeFileSync('outcome.csv', csv);
+
+        //console.log("Outcomes : "+outcomes);
+        //res.status(200).send("OK");
+
+        res.status(200).json(results);
+
+    } catch(e)
+    {
+        console.log("Error");
+        console.error(e);
+        res.status(404).json({});
+
+    }
+    finally{
+        await client.close();
+    }   
+});
+
+
+router.route('/ais2allsample10min').get( async(req, res, next) => {
+    try{
+        let _mmsi = parseInt(req.query.mmsi);
+        let _sample = parseInt(req.query.sample);
+
+        await client.connect();
+        const database = client.db(databasename);
+        const ais1aggregate = database.collection("ais110mingeo");
+
+        let pipeline = [
+            { '$match': { mmsi: _mmsi } },
+            {'$project':{'_id':0,'mmsi':1,'aisgroupunix':1,'firstAISdata.coordinates':1,'firstAISdata.sog':1,'firstAISdata.cog':1,'firstAISdata.aistime2unix':1}},
+            {
+                '$bucketAuto': {
+                  groupBy: '$aisgroupunix',
+                  buckets: _sample,
+                  output: {
+                    mmsi: { '$first': '$mmsi' },
+                    aistime2unix: { '$first': '$firstAISdata.aistime2unix' },
+                    coordinates: { '$first': '$firstAISdata.coordinates' },
+                    sog: { '$first': '$firstAISdata.cog' },
+                    cog: { '$first': '$firstAISdata.cog' }
+                  }
+                }
+              },
+              { '$project': { _id: 0} },
+            {'$sort':{'aistime2unix':1}}
+          ];
+        
+        let allowdisk = { allowDiskUse: true }
+
+        console.log("pipeline:"+JSON.stringify(pipeline));
+
+        const cursor = await ais1aggregate.aggregate(pipeline,allowdisk);
+        
+        const results = await cursor.toArray();
+
+        let outcomes = '';
+        if (results.length > 0) {
+            results.forEach((result, i) => {
+                outcomes += JSON.stringify(results);
+                //console.log(result);
+            });
+        } else {
+            console.log('No Data');
+        }
+
+        //const csv = await converter.json2csvAsync(results);
+        //fs.writeFileSync('outcome.csv', csv);
+
+        //console.log("Outcomes : "+outcomes);
+        //res.status(200).send("OK");
+
+        res.status(200).json(results);
+
+    } catch(e)
+    {
+        console.log("Error");
+        console.error(e);
+        res.status(404).json({});
+
+    }
+    finally{
+        await client.close();
+    }   
+});
+
+
+
 module.exports = router;
