@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-server
+  labels:
+    app: node-server
+spec:
+  selector:
+    matchLabels:
+      app: node-server
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: node-server
+    spec:
+      containers:
+      - name: node-server
+        image: icn.ocir.io/poc_samsungsds/nodeserver:3.0
+        ports:
+        - containerPort: 3000
+      imagePullSecrets:
+      - name: ocirsecret
